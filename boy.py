@@ -34,6 +34,12 @@ class Boy:
                     'dest': 'AUTO_RUN',
                     'after': '_initialize_auto_run',
                 },
+                {
+                    'trigger': 'finish_auto_run',
+                    'source': 'AUTO_RUN',
+                    'dest': 'IDLE',
+                    'after': '_finish_auto_run',
+                },
             ],
         )
 
@@ -41,6 +47,9 @@ class Boy:
         self.auto_run_started_at = time.monotonic()
         self.auto_run_speed = 5
         self.auto_run_size = 100
+
+    def _finish_auto_run(self):
+        self.state_started_at = time.monotonic()
 
     def update(self):
         if self.state == 'IDLE':
@@ -52,6 +61,15 @@ class Boy:
         elif self.state == 'RUN':
             self.frame = (self.frame + 1) % 8
             self.x += 5 * self.face_dir
+        elif self.state == 'AUTO_RUN':
+            elapsed = time.monotonic() - self.auto_run_started_at
+            self.auto_run_speed = 5 + 0.5 * elapsed
+            self.auto_run_size = 100 + 10 * elapsed
+            if elapsed >= 5:
+                self.finish_auto_run()
+                return
+            self.frame = (self.frame + 1) % 8
+            self.x += self.auto_run_speed * self.face_dir
 
     def handle_event(self, event):
         if (self.state == 'IDLE' and event.type == SDL_KEYDOWN
@@ -95,6 +113,14 @@ class Boy:
             self.image.clip_draw(
                 self.frame * 100, 100 if self.face_dir == 1 else 0,
                 100, 100, self.x, self.y,
+            )
+            return
+
+        if self.state == 'AUTO_RUN':
+            self.image.clip_draw(
+                self.frame * 100, 100 if self.face_dir == 1 else 0,
+                100, 100, self.x, self.y,
+                self.auto_run_size, self.auto_run_size,
             )
             return
 
