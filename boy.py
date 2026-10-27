@@ -40,6 +40,12 @@ class Boy:
                     'dest': 'IDLE',
                     'after': '_finish_auto_run',
                 },
+                {
+                    'trigger': 'stop_auto_run',
+                    'source': 'AUTO_RUN',
+                    'dest': 'RUN',
+                    'after': '_reset_auto_run',
+                },
             ],
         )
 
@@ -49,7 +55,13 @@ class Boy:
         self.auto_run_size = 100
 
     def _finish_auto_run(self):
+        self._reset_auto_run()
         self.state_started_at = time.monotonic()
+
+    def _reset_auto_run(self):
+        self.auto_run_started_at = None
+        self.auto_run_speed = 5
+        self.auto_run_size = 100
 
     def update(self):
         if self.state == 'IDLE':
@@ -82,7 +94,9 @@ class Boy:
         elif event.type == SDL_KEYDOWN and event.key in (SDLK_LEFT, SDLK_RIGHT):
             self.pressed_directions.add(event.key)
             self.face_dir = -1 if event.key == SDLK_LEFT else 1
-            if self.state in ('IDLE', 'SLEEP'):
+            if self.state == 'AUTO_RUN':
+                self.stop_auto_run()
+            elif self.state in ('IDLE', 'SLEEP'):
                 self.start_running()
         elif event.type == SDL_KEYUP and event.key in (SDLK_LEFT, SDLK_RIGHT):
             self.pressed_directions.discard(event.key)
