@@ -3,7 +3,7 @@ import time
 
 from pico2d import (
     load_image, SDL_KEYDOWN, SDL_KEYUP,
-    SDLK_LEFT, SDLK_RIGHT, SDLK_SPACE,
+    SDLK_a, SDLK_LEFT, SDLK_RIGHT, SDLK_SPACE,
 )
 from transitions import Machine
 
@@ -14,10 +14,13 @@ class Boy:
         self.face_dir = 1
         self.pressed_directions = set()
         self.state_started_at = time.monotonic()
+        self.auto_run_started_at = None
+        self.auto_run_speed = 5
+        self.auto_run_size = 100
         self.image = load_image('animation_sheet.png')
         self.machine = Machine(
             model=self,
-            states=['IDLE', 'RUN', 'SLEEP'],
+            states=['IDLE', 'RUN', 'SLEEP', 'AUTO_RUN'],
             initial='IDLE',
             auto_transitions=False,
             transitions=[
@@ -25,8 +28,19 @@ class Boy:
                 {'trigger': 'wake_up', 'source': 'SLEEP', 'dest': 'IDLE'},
                 {'trigger': 'start_running', 'source': ['IDLE', 'SLEEP'], 'dest': 'RUN'},
                 {'trigger': 'stop_running', 'source': 'RUN', 'dest': 'IDLE'},
+                {
+                    'trigger': 'start_auto_run',
+                    'source': 'IDLE',
+                    'dest': 'AUTO_RUN',
+                    'after': '_initialize_auto_run',
+                },
             ],
         )
+
+    def _initialize_auto_run(self):
+        self.auto_run_started_at = time.monotonic()
+        self.auto_run_speed = 5
+        self.auto_run_size = 100
 
     def update(self):
         if self.state == 'IDLE':
@@ -40,7 +54,10 @@ class Boy:
             self.x += 5 * self.face_dir
 
     def handle_event(self, event):
-        if (self.state == 'SLEEP' and event.type == SDL_KEYDOWN
+        if (self.state == 'IDLE' and event.type == SDL_KEYDOWN
+                and event.key == SDLK_a):
+            self.start_auto_run()
+        elif (self.state == 'SLEEP' and event.type == SDL_KEYDOWN
                 and event.key == SDLK_SPACE):
             self.wake_up()
             self.state_started_at = time.monotonic()
