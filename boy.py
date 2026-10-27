@@ -30,7 +30,7 @@ class Boy:
 
     def update(self):
         if self.state == 'IDLE':
-            if time.monotonic() - self.state_started_at >= 2:
+            if time.monotonic() - self.state_started_at >= 5:
                 self.fall_asleep()
                 self.state_started_at = time.monotonic()
                 return
