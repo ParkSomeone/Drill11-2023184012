@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1350" height="920" viewBox="0 0 1350 920" role="img" aria-labelledby="title description">
+  <title id="title">Boy 상태 다이어그램</title>
+  <desc id="description">IDLE, RUN, SLEEP, AUTO_RUN 상태와 각 상태 간 입력 및 시간 조건 전이를 직각 화살표로 나타낸 다이어그램.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+    <style>
+      text { font-family: "Segoe UI", Arial, sans-serif; fill: #0f172a; }
+      .state { stroke: #334155; stroke-width: 2; rx: 18; }
+      .label { font-size: 20px; font-weight: 700; text-anchor: middle; }
+      .detail { font-size: 14px; text-anchor: middle; fill: #334155; }
+      .edge { fill: none; stroke: #334155; stroke-width: 2.2; marker-end: url(#arrow); }
+      .edge-label { font-size: 14px; font-weight: 600; fill: #1e293b; }
+      .new { stroke: #2563eb; stroke-width: 2.8; }
+      .new-label { fill: #1d4ed8; }
+    </style>
+  </defs>
+
+  <rect width="1350" height="920" fill="#f8fafc"/>
+  <text x="675" y="46" font-size="28" font-weight="700" text-anchor="middle">Boy 상태 다이어그램</text>
+  <text x="675" y="75" font-size="15" text-anchor="middle" fill="#475569">파란색: AUTO_RUN 추가 및 관련 전이 · 모든 연결은 직각 경로</text>
+
+  <!-- States -->
+  <rect class="state" x="90" y="350" width="260" height="140" fill="#e0f2fe"/>
+  <text class="label" x="220" y="394">IDLE</text>
+  <text class="detail" x="220" y="424">대기 / 애니메이션</text>
+  <text class="detail" x="220" y="450">5초 후 SLEEP</text>
+
+  <rect class="state" x="500" y="350" width="260" height="140" fill="#dcfce7"/>
+  <text class="label" x="630" y="394">RUN</text>
+  <text class="detail" x="630" y="424">방향키 방향으로 이동</text>
+  <text class="detail" x="630" y="450">이동량: 5px / 업데이트</text>
+
+  <rect class="state new" x="920" y="350" width="280" height="140" fill="#dbeafe"/>
+  <text class="label new-label" x="1060" y="390">AUTO_RUN (A)</text>
+  <text class="detail" x="1060" y="420">바라보는 방향으로 자동 이동</text>
+  <text class="detail" x="1060" y="445">속도: 5 + 0.5t px / 업데이트</text>
+  <text class="detail" x="1060" y="468">크기: (100 + 10t) × (100 + 10t)</text>
+
+  <rect class="state" x="90" y="650" width="260" height="140" fill="#f1f5f9"/>
+  <text class="label" x="220" y="694">SLEEP</text>
+  <text class="detail" x="220" y="724">수면</text>
+  <text class="detail" x="220" y="750">Space로 기상</text>
+
+  <!-- IDLE and RUN: separate parallel lanes -->
+  <path class="edge" d="M350 385 H500"/>
+  <text class="edge-label" x="365" y="374">좌우 방향키</text>
+  <path class="edge" d="M650 350 V310 H290 V350"/>
+  <text class="edge-label" x="420" y="298">방향키 모두 해제</text>
+
+  <!-- IDLE and SLEEP: separate parallel lanes -->
+  <path class="edge" d="M160 490 V650"/>
+  <text class="edge-label" x="105" y="570">5초 경과</text>
+  <path class="edge" d="M280 650 V490"/>
+  <text class="edge-label" x="290" y="570">Space</text>
+
+  <!-- SLEEP to RUN -->
+  <path class="edge" d="M350 720 H430 V530 H630 V490"/>
+  <text class="edge-label" x="365" y="710">좌우 방향키</text>
+
+  <!-- IDLE to AUTO_RUN -->
+  <path class="edge new" d="M220 350 V270 H1060 V350"/>
+  <text class="edge-label new-label" x="590" y="258">a 키</text>
+
+  <!-- AUTO_RUN to RUN -->
+  <path class="edge new" d="M920 420 H760"/>
+  <text class="edge-label new-label" x="780" y="408">좌우 방향키</text>
+
+  <!-- AUTO_RUN timeout to IDLE, routed around all states -->
+  <path class="edge new" d="M1060 490 V850 H50 V420 H90"/>
+  <text class="edge-label new-label" x="500" y="840">5초 경과 / IDLE로 복귀 / 속도·크기 초기화</text>
+
+  <text x="55" y="895" font-size="13" fill="#64748b">t: AUTO_RUN 시작 후 경과 시간(초). 상태 전이 조건과 증가 규칙은 개발 명세서를 따릅니다.</text>
+</svg>
